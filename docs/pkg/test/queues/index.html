@@ -14,7 +14,7 @@
 
 
 
-<script>var goVersion = "go1.13.15";</script>
+<script>var goVersion = "go1.18.7";</script>
 <script src="../../../lib/godoc/godocs.js" defer></script>
 </head>
 <body>
@@ -152,7 +152,10 @@
 				
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#TestMsgReceiver.ReceiveMessage">func (c *TestMsgReceiver) ReceiveMessage(envelope *queues.MessageEnvelope, queue queues.IMessageQueue) (err error)</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#TestMsgReceiver.GetEnvelope">func (c *TestMsgReceiver) GetEnvelope() queues.MessageEnvelope</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#TestMsgReceiver.ReceiveMessage">func (c *TestMsgReceiver) ReceiveMessage(ctx context.Context, envelope *queues.MessageEnvelope, queue queues.IMessageQueue) (err error)</a></dd>
 				
 			
 			
@@ -182,7 +185,7 @@
 		
 			
 			
-			<h2 id="MessageQueueFixture">type <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=156:219#L1">MessageQueueFixture</a>
+			<h2 id="MessageQueueFixture">type <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=189:254#L3">MessageQueueFixture</a>
 				<a class="permalink" href="index.html#MessageQueueFixture">&#xb6;</a>
 				
 				
@@ -203,7 +206,7 @@
 
 			
 				
-				<h3 id="NewMessageQueueFixture">func <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=221:297#L5">NewMessageQueueFixture</a>
+				<h3 id="NewMessageQueueFixture">func <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=258:334#L7">NewMessageQueueFixture</a>
 					<a class="permalink" href="index.html#NewMessageQueueFixture">&#xb6;</a>
 					
 					
@@ -216,7 +219,7 @@
 
 			
 				
-				<h3 id="MessageQueueFixture.TestMessageCount">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=1086:1146#L33">TestMessageCount</a>
+				<h3 id="MessageQueueFixture.TestMessageCount">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=1195:1255#L35">TestMessageCount</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestMessageCount">&#xb6;</a>
 					
 					
@@ -228,7 +231,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestMoveToDeadMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=4382:4447#L130">TestMoveToDeadMessage</a>
+				<h3 id="MessageQueueFixture.TestMoveToDeadMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=4896:4961#L132">TestMoveToDeadMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestMoveToDeadMessage">&#xb6;</a>
 					
 					
@@ -240,7 +243,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestOnMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=4967:5024#L146">TestOnMessage</a>
+				<h3 id="MessageQueueFixture.TestOnMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=5563:5620#L148">TestOnMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestOnMessage">&#xb6;</a>
 					
 					
@@ -252,7 +255,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestPeekNoMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=4231:4292#L124">TestPeekNoMessage</a>
+				<h3 id="MessageQueueFixture.TestPeekNoMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=4717:4778#L126">TestPeekNoMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestPeekNoMessage">&#xb6;</a>
 					
 					
@@ -264,7 +267,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestReceiveAbandonMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=2701:2770#L82">TestReceiveAbandonMessage</a>
+				<h3 id="MessageQueueFixture.TestReceiveAbandonMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=2991:3060#L84">TestReceiveAbandonMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestReceiveAbandonMessage">&#xb6;</a>
 					
 					
@@ -276,7 +279,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestReceiveCompleteMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=1925:1995#L59">TestReceiveCompleteMessage</a>
+				<h3 id="MessageQueueFixture.TestReceiveCompleteMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=2126:2196#L61">TestReceiveCompleteMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestReceiveCompleteMessage">&#xb6;</a>
 					
 					
@@ -288,7 +291,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestReceiveSendMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=1388:1454#L44">TestReceiveSendMessage</a>
+				<h3 id="MessageQueueFixture.TestReceiveSendMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=1530:1596#L46">TestReceiveSendMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestReceiveSendMessage">&#xb6;</a>
 					
 					
@@ -300,7 +303,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestSendPeekMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=3586:3649#L105">TestSendPeekMessage</a>
+				<h3 id="MessageQueueFixture.TestSendPeekMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=3987:4050#L107">TestSendPeekMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestSendPeekMessage">&#xb6;</a>
 					
 					
@@ -312,7 +315,7 @@
 				
 			
 				
-				<h3 id="MessageQueueFixture.TestSendReceiveMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=360:426#L12">TestSendReceiveMessage</a>
+				<h3 id="MessageQueueFixture.TestSendReceiveMessage">func (*MessageQueueFixture) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=404:470#L14">TestSendReceiveMessage</a>
 					<a class="permalink" href="index.html#MessageQueueFixture.TestSendReceiveMessage">&#xb6;</a>
 					
 					
@@ -326,7 +329,7 @@
 		
 			
 			
-			<h2 id="TestMsgReceiver">type <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=5586:5651#L167">TestMsgReceiver</a>
+			<h2 id="TestMsgReceiver">type <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=6274:6365#L169">TestMsgReceiver</a>
 				<a class="permalink" href="index.html#TestMsgReceiver">&#xb6;</a>
 				
 				
@@ -349,12 +352,24 @@
 
 			
 				
-				<h3 id="TestMsgReceiver.ReceiveMessage">func (*TestMsgReceiver) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=5653:5767#L171">ReceiveMessage</a>
+				<h3 id="TestMsgReceiver.GetEnvelope">func (*TestMsgReceiver) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=6369:6431#L174">GetEnvelope</a>
+					<a class="permalink" href="index.html#TestMsgReceiver.GetEnvelope">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#TestMsgReceiver">TestMsgReceiver</a>) GetEnvelope() <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/">queues</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/#MessageEnvelope">MessageEnvelope</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="TestMsgReceiver.ReceiveMessage">func (*TestMsgReceiver) <a href="http://localhost:6060/src/test/queues/MessageQueueFixture.go?s=6504:6639#L180">ReceiveMessage</a>
 					<a class="permalink" href="index.html#TestMsgReceiver.ReceiveMessage">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#TestMsgReceiver">TestMsgReceiver</a>) ReceiveMessage(envelope *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/">queues</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/#MessageEnvelope">MessageEnvelope</a>, queue <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/">queues</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/#IMessageQueue">IMessageQueue</a>) (err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				<pre>func (c *<a href="index.html#TestMsgReceiver">TestMsgReceiver</a>) ReceiveMessage(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, envelope *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/">queues</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/#MessageEnvelope">MessageEnvelope</a>, queue <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/">queues</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-messaging-gox/queues/#IMessageQueue">IMessageQueue</a>) (err <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
 				
 				
 				
@@ -372,13 +387,13 @@
 
 
 <div id="footer">
-Build version go1.13.15.<br>
+Build version go1.18.7.<br>
 Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
 the content of this page is licensed under the
 Creative Commons Attribution 3.0 License,
 and code is licensed under a <a href="http://localhost:6060/LICENSE">BSD license</a>.<br>
-<a href="http://localhost:6060/doc/tos.html">Terms of Service</a> |
-<a href="http://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+<a href="https://golang.org/doc/tos.html">Terms of Service</a> |
+<a href="https://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
 </div>
 
 </div><!-- .container -->

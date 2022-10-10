@@ -14,7 +14,7 @@
 
 
 
-<script>var goVersion = "go1.13.15";</script>
+<script>var goVersion = "go1.18.7";</script>
 <script src="../../lib/godoc/godocs.js" defer></script>
 </head>
 <body>
@@ -125,34 +125,40 @@
 				
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Close">func (c *MqttConnection) Close(correlationId string) error</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Close">func (c *MqttConnection) Close(ctx context.Context, correlationId string) error</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Configure">func (c *MqttConnection) Configure(config *cconf.ConfigParams)</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Configure">func (c *MqttConnection) Configure(ctx context.Context, config *cconf.ConfigParams)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.CreateQueue">func (c *MqttConnection) CreateQueue() error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.DeleteQueue">func (c *MqttConnection) DeleteQueue() error</a></dd>
 				
 					
 					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.GetConnection">func (c *MqttConnection) GetConnection() mqtt.Client</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.GetQueueNames">func (c *MqttConnection) GetQueueNames() ([]string, error)</a></dd>
-				
-					
 					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.IsOpen">func (c *MqttConnection) IsOpen() bool</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Open">func (c *MqttConnection) Open(correlationId string) error</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Open">func (c *MqttConnection) Open(ctx context.Context, correlationId string) error</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Publish">func (c *MqttConnection) Publish(topic string, qos byte, retained bool, data []byte) error</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Publish">func (c *MqttConnection) Publish(ctx context.Context, topic string, qos byte, retained bool, data []byte) error</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.SetReferences">func (c *MqttConnection) SetReferences(references cref.IReferences)</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.ReadQueueNames">func (c *MqttConnection) ReadQueueNames() ([]string, error)</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Subscribe">func (c *MqttConnection) Subscribe(topic string, qos byte, listener IMqttMessageListener) error</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.SetReferences">func (c *MqttConnection) SetReferences(ctx context.Context, references cref.IReferences)</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Unsubscribe">func (c *MqttConnection) Unsubscribe(topic string, listener IMqttMessageListener) error</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Subscribe">func (c *MqttConnection) Subscribe(ctx context.Context, topic string, qos byte, listener IMqttMessageListener) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnection.Unsubscribe">func (c *MqttConnection) Unsubscribe(ctx context.Context, topic string, listener IMqttMessageListener) error</a></dd>
 				
 			
 				
@@ -166,13 +172,13 @@
 					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.Compose">func (c *MqttConnectionResolver) Compose(correlationId string, connections []*ccon.ConnectionParams, credential *cauth.CredentialParams) (*cconf.ConfigParams, error)</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.Configure">func (c *MqttConnectionResolver) Configure(config *cconf.ConfigParams)</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.Configure">func (c *MqttConnectionResolver) Configure(ctx context.Context, config *cconf.ConfigParams)</a></dd>
 				
 					
 					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.Resolve">func (c *MqttConnectionResolver) Resolve(correlationId string) (*cconf.ConfigParams, error)</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.SetReferences">func (c *MqttConnectionResolver) SetReferences(references cref.IReferences)</a></dd>
+					<dd>&nbsp; &nbsp; <a href="index.html#MqttConnectionResolver.SetReferences">func (c *MqttConnectionResolver) SetReferences(ctx context.Context, references cref.IReferences)</a></dd>
 				
 			
 				
@@ -213,7 +219,7 @@
 		
 			
 			
-			<h2 id="IMqttMessageListener">type <a href="http://localhost:6060/src/connect/IMqttMessageListener.go?s=73:145#L1">IMqttMessageListener</a>
+			<h2 id="IMqttMessageListener">type <a href="http://localhost:6060/src/connect/IMqttMessageListener.go?s=79:153#L1">IMqttMessageListener</a>
 				<a class="permalink" href="index.html#IMqttMessageListener">&#xb6;</a>
 				
 				
@@ -237,36 +243,37 @@
 		
 			
 			
-			<h2 id="MqttConnection">type <a href="http://localhost:6060/src/connect/MqttConnection.go?s=2031:2508#L32">MqttConnection</a>
+			<h2 id="MqttConnection">type <a href="http://localhost:6060/src/connect/MqttConnection.go?s=2159:2682#L33">MqttConnection</a>
 				<a class="permalink" href="index.html#MqttConnection">&#xb6;</a>
 				
 				
 			</h2>
 			<p>
-*
-</p>
-<pre>MQTT connection using plain driver.
+MQTT connection using plain driver.
 By defining a connection and sharing it through multiple message queues
 you can reduce number of used connections.
-
-### Configuration parameters ###
- - connection(s):
-   - discovery_key:               (optional) a key to retrieve the connection from [[<a href="https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html">https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html</a> IDiscovery]]
-   - host:                        host name or IP address
-   - port:                        port number
-   - uri:                         resource URI or connection string with all parameters in it
- - credential(s):
-   - store_key:                   (optional) a key to retrieve the credentials from [[<a href="https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html">https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html</a> ICredentialStore]]
-   - username:                    user name
-   - password:                    user password
- - options:
-   - retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
-   - connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
-   - reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
-   - keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
+</p>
+<p>
+Configuration parameters
+</p>
+<pre>- client_id:               (optional) name of the client id
+- connection(s):
+	- discovery_key:               (optional) a key to retrieve the connection from [[<a href="https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html">https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html</a> IDiscovery]]
+	- host:                        host name or IP address
+	- port:                        port number
+	- uri:                         resource URI or connection string with all parameters in it
+- credential(s):
+	- store_key:                   (optional) a key to retrieve the credentials from [[<a href="https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html">https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html</a> ICredentialStore]]
+	- username:                    user name
+	- password:                    user password
+- options:
+	- retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
+	- connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
+	- reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
+	- keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
 </pre>
 <p>
-### References ###
+References
 </p>
 <pre>- \*:logger:\*:\*:1.0           (optional) ILogger components to pass log messages
 - \*:discovery:\*:\*:1.0        (optional) IDiscovery services
@@ -298,7 +305,7 @@ you can reduce number of used connections.
 
 			
 				
-				<h3 id="NewMqttConnection">func <a href="http://localhost:6060/src/connect/MqttConnection.go?s=2583:2623#L55">NewMqttConnection</a>
+				<h3 id="NewMqttConnection">func <a href="http://localhost:6060/src/connect/MqttConnection.go?s=2760:2800#L57">NewMqttConnection</a>
 					<a class="permalink" href="index.html#NewMqttConnection">&#xb6;</a>
 					
 					
@@ -314,16 +321,18 @@ NewMqttConnection creates a new instance of the connection component.
 
 			
 				
-				<h3 id="MqttConnection.Close">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=5919:5977#L159">Close</a>
+				<h3 id="MqttConnection.Close">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=6607:6686#L170">Close</a>
 					<a class="permalink" href="index.html#MqttConnection.Close">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Close(correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Close(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
 				<p>
 Closes component and frees used resources.
+Parameters:
 </p>
-<pre>- correlationId 	(optional) transaction id to trace execution through call chain.
+<pre>- ctx context.Context	operation context.
+- correlationId 	(optional) transaction id to trace execution through call chain.
 </pre>
 <p>
 Return			 error or nil no errors occured
@@ -334,16 +343,18 @@ Return			 error or nil no errors occured
 				
 			
 				
-				<h3 id="MqttConnection.Configure">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=3283:3345#L80">Configure</a>
+				<h3 id="MqttConnection.Configure">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=3546:3629#L84">Configure</a>
 					<a class="permalink" href="index.html#MqttConnection.Configure">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Configure(config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Configure(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
 				<p>
 Configures component by passing configuration parameters.
+Parameters:
 </p>
-<pre>- config    configuration parameters to be set.
+<pre>- ctx context.Context	operation context.
+- config	configuration parameters to be set.
 </pre>
 
 				
@@ -351,7 +362,31 @@ Configures component by passing configuration parameters.
 				
 			
 				
-				<h3 id="MqttConnection.GetConnection">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=6234:6286#L176">GetConnection</a>
+				<h3 id="MqttConnection.CreateQueue">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=7141:7185#L195">CreateQueue</a>
+					<a class="permalink" href="index.html#MqttConnection.CreateQueue">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) CreateQueue() <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MqttConnection.DeleteQueue">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=7207:7251#L199">DeleteQueue</a>
+					<a class="permalink" href="index.html#MqttConnection.DeleteQueue">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) DeleteQueue() <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MqttConnection.GetConnection">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=6965:7017#L187">GetConnection</a>
 					<a class="permalink" href="index.html#MqttConnection.GetConnection">&#xb6;</a>
 					
 					
@@ -363,19 +398,7 @@ Configures component by passing configuration parameters.
 				
 			
 				
-				<h3 id="MqttConnection.GetQueueNames">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=6313:6371#L180">GetQueueNames</a>
-					<a class="permalink" href="index.html#MqttConnection.GetQueueNames">&#xb6;</a>
-					
-					
-				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) GetQueueNames() ([]<a href="http://localhost:6060/pkg/builtin/#string">string</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
-				
-				
-				
-				
-			
-				
-				<h3 id="MqttConnection.IsOpen">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=4268:4306#L101">IsOpen</a>
+				<h3 id="MqttConnection.IsOpen">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=4738:4776#L108">IsOpen</a>
 					<a class="permalink" href="index.html#MqttConnection.IsOpen">&#xb6;</a>
 					
 					
@@ -391,16 +414,18 @@ Returns true if the component has been opened and false otherwise.
 				
 			
 				
-				<h3 id="MqttConnection.Open">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=4500:4557#L108">Open</a>
+				<h3 id="MqttConnection.Open">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=5034:5112#L117">Open</a>
 					<a class="permalink" href="index.html#MqttConnection.Open">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Open(correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Open(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, correlationId <a href="http://localhost:6060/pkg/builtin/#string">string</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
 				<p>
 Opens the component.
+Parameters:
 </p>
-<pre>- correlationId 	(optional) transaction id to trace execution through call chain.
+<pre>- ctx context.Context	operation context.
+- correlationId 	(optional) transaction id to trace execution through call chain.
 - Return 			error or nil no errors occured.
 </pre>
 
@@ -409,22 +434,23 @@ Opens the component.
 				
 			
 				
-				<h3 id="MqttConnection.Publish">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=6836:6926#L204">Publish</a>
+				<h3 id="MqttConnection.Publish">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=7773:7884#L224">Publish</a>
 					<a class="permalink" href="index.html#MqttConnection.Publish">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Publish(topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, qos <a href="http://localhost:6060/pkg/builtin/#byte">byte</a>, retained <a href="http://localhost:6060/pkg/builtin/#bool">bool</a>, data []<a href="http://localhost:6060/pkg/builtin/#byte">byte</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Publish(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, qos <a href="http://localhost:6060/pkg/builtin/#byte">byte</a>, retained <a href="http://localhost:6060/pkg/builtin/#bool">bool</a>, data []<a href="http://localhost:6060/pkg/builtin/#byte">byte</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
 				<p>
 Publish a message to a specified topic
 </p>
 <p>
 Parameters:
 </p>
-<pre>- topic a topic name
-- qos quality of service (QOS) for the message
-- retained retained flag for the message
-- data a message to be published
+<pre>	- ctx context.Context	operation context.
+ - topic a topic name
+ - qos quality of service (QOS) for the message
+ - retained retained flag for the message
+ - data a message to be published
 </pre>
 <p>
 Returns: error or nil for success
@@ -435,16 +461,30 @@ Returns: error or nil for success
 				
 			
 				
-				<h3 id="MqttConnection.SetReferences">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=4003:4070#L94">SetReferences</a>
+				<h3 id="MqttConnection.ReadQueueNames">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=7048:7107#L191">ReadQueueNames</a>
+					<a class="permalink" href="index.html#MqttConnection.ReadQueueNames">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) ReadQueueNames() ([]<a href="http://localhost:6060/pkg/builtin/#string">string</a>, <a href="http://localhost:6060/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="MqttConnection.SetReferences">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=4435:4523#L101">SetReferences</a>
 					<a class="permalink" href="index.html#MqttConnection.SetReferences">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) SetReferences(references <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">cref</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#IReferences">IReferences</a>)</pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) SetReferences(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, references <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">cref</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#IReferences">IReferences</a>)</pre>
 				<p>
 Sets references to dependent components.
+Parameters:
 </p>
-<pre>- references 	references to locate the component dependencies.
+<pre>- ctx context.Context	operation context.
+- references 	references to locate the component dependencies.
 </pre>
 
 				
@@ -452,19 +492,21 @@ Sets references to dependent components.
 				
 			
 				
-				<h3 id="MqttConnection.Subscribe">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=7347:7442#L226">Subscribe</a>
+				<h3 id="MqttConnection.Subscribe">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=8382:8498#L248">Subscribe</a>
 					<a class="permalink" href="index.html#MqttConnection.Subscribe">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Subscribe(topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, qos <a href="http://localhost:6060/pkg/builtin/#byte">byte</a>, listener <a href="index.html#IMqttMessageListener">IMqttMessageListener</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Subscribe(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, qos <a href="http://localhost:6060/pkg/builtin/#byte">byte</a>, listener <a href="index.html#IMqttMessageListener">IMqttMessageListener</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
 				<p>
 Subscribe to a topic
 </p>
 <p>
 Parameters:
+Parameters:
 </p>
-<pre>- topic a topic name
+<pre>- ctx context.Context	operation context.
+- topic a topic name
 - qos quality of service (QOS) for the subscription
 - listener a message listener
 </pre>
@@ -477,19 +519,20 @@ Returns: err or nil for success
 				
 			
 				
-				<h3 id="MqttConnection.Unsubscribe">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=8384:8471#L268">Unsubscribe</a>
+				<h3 id="MqttConnection.Unsubscribe">func (*MqttConnection) <a href="http://localhost:6060/src/connect/MqttConnection.go?s=9521:9629#L291">Unsubscribe</a>
 					<a class="permalink" href="index.html#MqttConnection.Unsubscribe">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Unsubscribe(topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, listener <a href="index.html#IMqttMessageListener">IMqttMessageListener</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
+				<pre>func (c *<a href="index.html#MqttConnection">MqttConnection</a>) Unsubscribe(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, topic <a href="http://localhost:6060/pkg/builtin/#string">string</a>, listener <a href="index.html#IMqttMessageListener">IMqttMessageListener</a>) <a href="http://localhost:6060/pkg/builtin/#error">error</a></pre>
 				<p>
 Unsubscribe from a previously subscribed topic topic
 </p>
 <p>
 Parameters:
 </p>
-<pre>- topic a topic name
+<pre>- ctx context.Context	operation context.
+- topic a topic name
 - qos quality of service (QOS) for the subscription
 - listener a message listener
 </pre>
@@ -504,7 +547,7 @@ Returns: err or nil for success
 		
 			
 			
-			<h2 id="MqttConnectionResolver">type <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1271:1400#L25">MqttConnectionResolver</a>
+			<h2 id="MqttConnectionResolver">type <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1366:1498#L25">MqttConnectionResolver</a>
 				<a class="permalink" href="index.html#MqttConnectionResolver">&#xb6;</a>
 				
 				
@@ -513,29 +556,25 @@ Returns: err or nil for success
 MqttConnectionResolver helper class that resolves Mqtt connection and credential parameters,
 validates them and generates connection options.
 </p>
-<pre>Configuration parameters:
-</pre>
 <p>
-- connection(s):
+Configuration parameters:
 </p>
-<pre>- discovery_key:               (optional) a key to retrieve the connection from IDiscovery
-- host:                        host name or IP address
-- port:                        port number
-- uri:                         resource URI or connection string with all parameters in it
-</pre>
-<p>
+<pre>- connection(s):
+	- discovery_key:               (optional) a key to retrieve the connection from IDiscovery
+	- host:                        host name or IP address
+	- port:                        port number
+	- uri:                         resource URI or connection string with all parameters in it
 - credential(s):
-</p>
-<pre> - store_key:                   (optional) a key to retrieve the credentials from ICredentialStore
- - username:                    user name
- - password:                    user password
-
-References:
+	- store_key:                   (optional) a key to retrieve the credentials from ICredentialStore
+	- username:                    user name
+	- password:                    user password
 </pre>
 <p>
-- *:discovery:*:*:1.0          (optional) IDiscovery services to resolve connections
-- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
+References:
 </p>
+<pre>- *:discovery:*:*:1.0          (optional) IDiscovery services to resolve connections
+- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
+</pre>
 
 			<pre>type MqttConnectionResolver struct {
 <span id="MqttConnectionResolver.ConnectionResolver"></span>    ConnectionResolver *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-components-gox/connect/">ccon</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-components-gox/connect/#ConnectionResolver">ConnectionResolver</a>
@@ -553,7 +592,7 @@ References:
 
 			
 				
-				<h3 id="NewMqttConnectionResolver">func <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1402:1458#L30">NewMqttConnectionResolver</a>
+				<h3 id="NewMqttConnectionResolver">func <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1502:1558#L30">NewMqttConnectionResolver</a>
 					<a class="permalink" href="index.html#NewMqttConnectionResolver">&#xb6;</a>
 					
 					
@@ -566,7 +605,7 @@ References:
 
 			
 				
-				<h3 id="MqttConnectionResolver.Compose">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=5543:5709#L173">Compose</a>
+				<h3 id="MqttConnectionResolver.Compose">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=6034:6201#L176">Compose</a>
 					<a class="permalink" href="index.html#MqttConnectionResolver.Compose">&#xb6;</a>
 					
 					
@@ -577,7 +616,8 @@ References:
 Compose method are composes Mqtt connection options from connection and credential parameters.
 Parameters:
 </p>
-<pre>- correlationId  string  (optional) transaction id to trace execution through call chain.
+<pre>- ctx context.Context	operation context.
+- correlationId  string  (optional) transaction id to trace execution through call chain.
 - connection  *ccon.ConnectionParams    connection parameters
 - credential  *cauth.CredentialParams   credential parameters
 </pre>
@@ -591,17 +631,18 @@ resolved options or error.
 				
 			
 				
-				<h3 id="MqttConnectionResolver.Configure">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1787:1857#L41">Configure</a>
+				<h3 id="MqttConnectionResolver.Configure">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=1943:2034#L42">Configure</a>
 					<a class="permalink" href="index.html#MqttConnectionResolver.Configure">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnectionResolver">MqttConnectionResolver</a>) Configure(config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
+				<pre>func (c *<a href="index.html#MqttConnectionResolver">MqttConnectionResolver</a>) Configure(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, config *<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/">cconf</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/config/#ConfigParams">ConfigParams</a>)</pre>
 				<p>
 Configure are configures component by passing configuration parameters.
 Parameters:
 </p>
-<pre>- config   *cconf.ConfigParams
+<pre>	- ctx context.Context	operation context.
+ - config   *cconf.ConfigParams
 </pre>
 <p>
 configuration parameters to be set.
@@ -612,7 +653,7 @@ configuration parameters to be set.
 				
 			
 				
-				<h3 id="MqttConnectionResolver.Resolve">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=4571:4662#L143">Resolve</a>
+				<h3 id="MqttConnectionResolver.Resolve">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=4971:5062#L145">Resolve</a>
 					<a class="permalink" href="index.html#MqttConnectionResolver.Resolve">&#xb6;</a>
 					
 					
@@ -622,8 +663,8 @@ configuration parameters to be set.
 Resolves MQTT connection options from connection and credential parameters.
 Parameters:
 </p>
-<pre>- correlationId   string
-(optional) transaction id to trace execution through call chain.
+<pre>- ctx context.Context	operation context.
+- correlationId   string (optional) transaction id to trace execution through call chain.
 </pre>
 <p>
 Returns options *cconf.ConfigParams, err error
@@ -635,17 +676,18 @@ receives resolved options or error.
 				
 			
 				
-				<h3 id="MqttConnectionResolver.SetReferences">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=2107:2182#L50">SetReferences</a>
+				<h3 id="MqttConnectionResolver.SetReferences">func (*MqttConnectionResolver) <a href="http://localhost:6060/src/connect/MqttConnectionResolver.go?s=2348:2444#L52">SetReferences</a>
 					<a class="permalink" href="index.html#MqttConnectionResolver.SetReferences">&#xb6;</a>
 					
 					
 				</h3>
-				<pre>func (c *<a href="index.html#MqttConnectionResolver">MqttConnectionResolver</a>) SetReferences(references <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">cref</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#IReferences">IReferences</a>)</pre>
+				<pre>func (c *<a href="index.html#MqttConnectionResolver">MqttConnectionResolver</a>) SetReferences(ctx <a href="http://localhost:6060/pkg/context/">context</a>.<a href="http://localhost:6060/pkg/context/#Context">Context</a>, references <a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/">cref</a>.<a href="http://localhost:6060/pkg/github.com/pip-services3-gox/pip-services3-commons-gox/refer/#IReferences">IReferences</a>)</pre>
 				<p>
 SetReferences are sets references to dependent components.
 Parameters:
 </p>
-<pre> - references  cref.IReferences
+<pre>	- ctx context.Context	operation context.
+ - references  cref.IReferences
 	references to locate the component dependencies.
 </pre>
 
@@ -656,7 +698,7 @@ Parameters:
 		
 			
 			
-			<h2 id="MqttSubscription">type <a href="http://localhost:6060/src/connect/MqttSubscription.go?s=17:128#L1">MqttSubscription</a>
+			<h2 id="MqttSubscription">type <a href="http://localhost:6060/src/connect/MqttSubscription.go?s=19:135#L1">MqttSubscription</a>
 				<a class="permalink" href="index.html#MqttSubscription">&#xb6;</a>
 				
 				
@@ -693,13 +735,13 @@ Parameters:
 
 
 <div id="footer">
-Build version go1.13.15.<br>
+Build version go1.18.7.<br>
 Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
 the content of this page is licensed under the
 Creative Commons Attribution 3.0 License,
 and code is licensed under a <a href="http://localhost:6060/LICENSE">BSD license</a>.<br>
-<a href="http://localhost:6060/doc/tos.html">Terms of Service</a> |
-<a href="http://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+<a href="https://golang.org/doc/tos.html">Terms of Service</a> |
+<a href="https://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
 </div>
 
 </div><!-- .container -->
