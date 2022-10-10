@@ -1,6 +1,8 @@
 package build
 
 import (
+	"context"
+
 	cref "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
 	"github.com/pip-services3-gox/pip-services3-messaging-gox/build"
 	cqueues "github.com/pip-services3-gox/pip-services3-messaging-gox/queues"
@@ -13,13 +15,13 @@ import (
 // See Factory
 // See MqttMessageQueue
 type MqttMessageQueueFactory struct {
-	build.MessageQueueFactory
+	*build.MessageQueueFactory
 }
 
 // NewMqttMessageQueueFactory method are create a new instance of the factory.
 func NewMqttMessageQueueFactory() *MqttMessageQueueFactory {
 	c := MqttMessageQueueFactory{
-		MessageQueueFactory: *build.InheritMessageQueueFactory(),
+		MessageQueueFactory: build.InheritMessageQueueFactory(),
 	}
 
 	mqttQueueDescriptor := cref.NewDescriptor("pip-services", "message-queue", "mqtt", "*", "1.0")
@@ -44,10 +46,10 @@ func (c *MqttMessageQueueFactory) CreateQueue(name string) cqueues.IMessageQueue
 	queue := queues.NewMqttMessageQueue(name)
 
 	if c.Config != nil {
-		queue.Configure(c.Config)
+		queue.Configure(context.Background(), c.Config)
 	}
 	if c.References != nil {
-		queue.SetReferences(c.References)
+		queue.SetReferences(context.Background(), c.References)
 	}
 
 	return queue

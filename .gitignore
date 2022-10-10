@@ -16,3 +16,4 @@
 
 .DS_Store
 /dist
+/docker/id_rsa*

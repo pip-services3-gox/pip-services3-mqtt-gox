@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"context"
 	"strconv"
 	"strings"
 
@@ -11,27 +12,26 @@ import (
 	ccon "github.com/pip-services3-gox/pip-services3-components-gox/connect"
 )
 
-/*
-MqttConnectionResolver helper class that resolves Mqtt connection and credential parameters,
-validates them and generates connection options.
-
-  Configuration parameters:
-
-- connection(s):
-  - discovery_key:               (optional) a key to retrieve the connection from IDiscovery
-  - host:                        host name or IP address
-  - port:                        port number
-  - uri:                         resource URI or connection string with all parameters in it
-- credential(s):
-  - store_key:                   (optional) a key to retrieve the credentials from ICredentialStore
-  - username:                    user name
-  - password:                    user password
-
- References:
-
-- *:discovery:*:*:1.0          (optional) IDiscovery services to resolve connections
-- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
-*/
+//
+// MqttConnectionResolver helper class that resolves Mqtt connection and credential parameters,
+// validates them and generates connection options.
+//
+// Configuration parameters:
+//
+//	- connection(s):
+//		- discovery_key:               (optional) a key to retrieve the connection from IDiscovery
+//		- host:                        host name or IP address
+//		- port:                        port number
+//		- uri:                         resource URI or connection string with all parameters in it
+//	- credential(s):
+//		- store_key:                   (optional) a key to retrieve the credentials from ICredentialStore
+//		- username:                    user name
+//		- password:                    user password
+//
+// References:
+//	- *:discovery:*:*:1.0          (optional) IDiscovery services to resolve connections
+//	- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
+//
 type MqttConnectionResolver struct {
 	ConnectionResolver *ccon.ConnectionResolver
 	CredentialResolver *cauth.CredentialResolver
@@ -46,20 +46,22 @@ func NewMqttConnectionResolver() *MqttConnectionResolver {
 
 // Configure are configures component by passing configuration parameters.
 // Parameters:
+//	- ctx context.Context	operation context.
 //  - config   *cconf.ConfigParams
 // configuration parameters to be set.
-func (c *MqttConnectionResolver) Configure(config *cconf.ConfigParams) {
-	c.ConnectionResolver.Configure(config)
-	c.CredentialResolver.Configure(config)
+func (c *MqttConnectionResolver) Configure(ctx context.Context, config *cconf.ConfigParams) {
+	c.ConnectionResolver.Configure(ctx, config)
+	c.CredentialResolver.Configure(ctx, config)
 }
 
 // SetReferences are sets references to dependent components.
 // Parameters:
+//	- ctx context.Context	operation context.
 //  - references  cref.IReferences
 //	references to locate the component dependencies.
-func (c *MqttConnectionResolver) SetReferences(references cref.IReferences) {
-	c.ConnectionResolver.SetReferences(references)
-	c.CredentialResolver.SetReferences(references)
+func (c *MqttConnectionResolver) SetReferences(ctx context.Context, references cref.IReferences) {
+	c.ConnectionResolver.SetReferences(ctx, references)
+	c.CredentialResolver.SetReferences(ctx, references)
 }
 
 func (c *MqttConnectionResolver) validateConnection(correlationId string, connection *ccon.ConnectionParams) error {
@@ -99,14 +101,14 @@ func (c *MqttConnectionResolver) composeOptions(connections []*ccon.ConnectionPa
 	}
 
 	// Contruct options and copy over credentials
-	options := cconf.NewEmptyConfigParams().SetDefaults(&credential.ConfigParams)
+	options := cconf.NewEmptyConfigParams().SetDefaults(credential.ConfigParams)
 
 	globalUri := ""
 	uriBuilder := strings.Builder{}
 
 	// Process connections, find or constract uri
 	for _, connection := range connections {
-		options = options.SetDefaults(&connection.ConfigParams)
+		options = options.SetDefaults(connection.ConfigParams)
 
 		if globalUri != "" {
 			continue
@@ -146,8 +148,8 @@ func (c *MqttConnectionResolver) composeOptions(connections []*ccon.ConnectionPa
 
 // Resolves MQTT connection options from connection and credential parameters.
 // Parameters:
-//   - correlationId   string
-//   (optional) transaction id to trace execution through call chain.
+//	- ctx context.Context	operation context.
+//	- correlationId   string (optional) transaction id to trace execution through call chain.
 // Returns options *cconf.ConfigParams, err error
 // receives resolved options or error.
 func (c *MqttConnectionResolver) Resolve(correlationId string) (*cconf.ConfigParams, error) {
@@ -156,7 +158,7 @@ func (c *MqttConnectionResolver) Resolve(correlationId string) (*cconf.ConfigPar
 		return nil, err
 	}
 
-	credential, err := c.CredentialResolver.Lookup(correlationId)
+	credential, err := c.CredentialResolver.Lookup(context.Background(), correlationId)
 	if err != nil {
 		return nil, err
 	}
@@ -175,9 +177,10 @@ func (c *MqttConnectionResolver) Resolve(correlationId string) (*cconf.ConfigPar
 
 // Compose method are composes Mqtt connection options from connection and credential parameters.
 // Parameters:
-//   - correlationId  string  (optional) transaction id to trace execution through call chain.
-//   - connection  *ccon.ConnectionParams    connection parameters
-//   - credential  *cauth.CredentialParams   credential parameters
+//	- ctx context.Context	operation context.
+//	- correlationId  string  (optional) transaction id to trace execution through call chain.
+//	- connection  *ccon.ConnectionParams    connection parameters
+//	- credential  *cauth.CredentialParams   credential parameters
 // Returns: options *cconf.ConfigParams, err error
 // resolved options or error.
 func (c *MqttConnectionResolver) Compose(correlationId string, connections []*ccon.ConnectionParams,

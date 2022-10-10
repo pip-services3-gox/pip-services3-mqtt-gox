@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"context"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -13,33 +14,32 @@ import (
 	clog "github.com/pip-services3-gox/pip-services3-components-gox/log"
 )
 
-/**
- MQTT connection using plain driver.
- By defining a connection and sharing it through multiple message queues
- you can reduce number of used connections.
-
- ### Configuration parameters ###
-  - client_id:               (optional) name of the client id
-  - connection(s):
-    - discovery_key:               (optional) a key to retrieve the connection from [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html IDiscovery]]
-    - host:                        host name or IP address
-    - port:                        port number
-    - uri:                         resource URI or connection string with all parameters in it
-  - credential(s):
-    - store_key:                   (optional) a key to retrieve the credentials from [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html ICredentialStore]]
-    - username:                    user name
-    - password:                    user password
-  - options:
-    - retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
-    - connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
-    - reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
-    - keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
-
-### References ###
- - \*:logger:\*:\*:1.0           (optional) ILogger components to pass log messages
- - \*:discovery:\*:\*:1.0        (optional) IDiscovery services
- - \*:credential-store:\*:\*:1.0 (optional) Credential stores to resolve credentials
-*/
+// MQTT connection using plain driver.
+// By defining a connection and sharing it through multiple message queues
+// you can reduce number of used connections.
+//
+// Configuration parameters
+//	- client_id:               (optional) name of the client id
+//	- connection(s):
+//		- discovery_key:               (optional) a key to retrieve the connection from [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html IDiscovery]]
+//		- host:                        host name or IP address
+//		- port:                        port number
+//		- uri:                         resource URI or connection string with all parameters in it
+//	- credential(s):
+//		- store_key:                   (optional) a key to retrieve the credentials from [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/auth.icredentialstore.html ICredentialStore]]
+//		- username:                    user name
+//		- password:                    user password
+//	- options:
+//		- retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
+//		- connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
+//		- reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
+//		- keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
+//
+// References
+//	- \*:logger:\*:\*:1.0           (optional) ILogger components to pass log messages
+//	- \*:discovery:\*:\*:1.0        (optional) IDiscovery services
+//	- \*:credential-store:\*:\*:1.0 (optional) Credential stores to resolve credentials
+//
 type MqttConnection struct {
 	defaultConfig *cconf.ConfigParams
 	// The logger.
@@ -88,10 +88,12 @@ func NewMqttConnection() *MqttConnection {
 }
 
 // Configures component by passing configuration parameters.
-//   - config    configuration parameters to be set.
-func (c *MqttConnection) Configure(config *cconf.ConfigParams) {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- config	configuration parameters to be set.
+func (c *MqttConnection) Configure(ctx context.Context, config *cconf.ConfigParams) {
 	config = config.SetDefaults(c.defaultConfig)
-	c.ConnectionResolver.Configure(config)
+	c.ConnectionResolver.Configure(ctx, config)
 
 	c.Options = c.Options.Override(config.GetSection("options"))
 
@@ -103,10 +105,12 @@ func (c *MqttConnection) Configure(config *cconf.ConfigParams) {
 }
 
 // Sets references to dependent components.
-//   - references 	references to locate the component dependencies.
-func (c *MqttConnection) SetReferences(references cref.IReferences) {
-	c.Logger.SetReferences(references)
-	c.ConnectionResolver.SetReferences(references)
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- references 	references to locate the component dependencies.
+func (c *MqttConnection) SetReferences(ctx context.Context, references cref.IReferences) {
+	c.Logger.SetReferences(ctx, references)
+	c.ConnectionResolver.SetReferences(ctx, references)
 }
 
 // Checks if the component is opened.
@@ -116,9 +120,11 @@ func (c *MqttConnection) IsOpen() bool {
 }
 
 // Opens the component.
-//   - correlationId 	(optional) transaction id to trace execution through call chain.
-//   - Return 			error or nil no errors occured.
-func (c *MqttConnection) Open(correlationId string) error {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- correlationId 	(optional) transaction id to trace execution through call chain.
+//	- Return 			error or nil no errors occured.
+func (c *MqttConnection) Open(ctx context.Context, correlationId string) error {
 	options, err := c.ConnectionResolver.Resolve(correlationId)
 	if err != nil {
 		return err
@@ -135,11 +141,11 @@ func (c *MqttConnection) Open(correlationId string) error {
 		opts.AddBroker(uri)
 	}
 
-	user := options.Get("username")
+	user := options.GetAsString("username")
 	if user != "" {
 		opts.SetUsername(user)
 	}
-	passwd := options.Get("password")
+	passwd := options.GetAsString("password")
 	if passwd != "" {
 		opts.SetPassword(passwd)
 	}
@@ -155,21 +161,23 @@ func (c *MqttConnection) Open(correlationId string) error {
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		err = token.Error()
-		c.Logger.Error(correlationId, err, "Failed to connect to MQTT broker at "+uri)
+		c.Logger.Error(ctx, correlationId, err, "Failed to connect to MQTT broker at "+uri)
 		return err
 	}
 
 	c.Connection = client
 
-	c.Logger.Debug(correlationId, "Connected to MQTT broker at "+uri)
+	c.Logger.Debug(ctx, correlationId, "Connected to MQTT broker at "+uri)
 
 	return nil
 }
 
 // Closes component and frees used resources.
-//   - correlationId 	(optional) transaction id to trace execution through call chain.
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- correlationId 	(optional) transaction id to trace execution through call chain.
 // Return			 error or nil no errors occured
-func (c *MqttConnection) Close(correlationId string) error {
+func (c *MqttConnection) Close(ctx context.Context, correlationId string) error {
 	if c.Connection == nil {
 		return nil
 	}
@@ -181,7 +189,7 @@ func (c *MqttConnection) Close(correlationId string) error {
 	c.Connection = nil
 	c.subscriptions = []*MqttSubscription{}
 
-	c.Logger.Debug(correlationId, "Disconnected from MQTT broker")
+	c.Logger.Debug(ctx, correlationId, "Disconnected from MQTT broker")
 
 	return nil
 }
@@ -217,12 +225,13 @@ func (c *MqttConnection) checkOpen() error {
 // Publish a message to a specified topic
 //
 // Parameters:
+//	- ctx context.Context	operation context.
 //  - topic a topic name
 //  - qos quality of service (QOS) for the message
 //  - retained retained flag for the message
 //  - data a message to be published
 // Returns: error or nil for success
-func (c *MqttConnection) Publish(topic string, qos byte, retained bool, data []byte) error {
+func (c *MqttConnection) Publish(ctx context.Context, topic string, qos byte, retained bool, data []byte) error {
 	// Check for open connection
 	err := c.checkOpen()
 	if err != nil {
@@ -240,11 +249,13 @@ func (c *MqttConnection) Publish(topic string, qos byte, retained bool, data []b
 // Subscribe to a topic
 //
 // Parameters:
-//   - topic a topic name
-//   - qos quality of service (QOS) for the subscription
-//   - listener a message listener
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- topic a topic name
+//	- qos quality of service (QOS) for the subscription
+//	- listener a message listener
 // Returns: err or nil for success
-func (c *MqttConnection) Subscribe(topic string, qos byte, listener IMqttMessageListener) error {
+func (c *MqttConnection) Subscribe(ctx context.Context, topic string, qos byte, listener IMqttMessageListener) error {
 	// Check for open connection
 	err := c.checkOpen()
 	if err != nil {
@@ -282,11 +293,12 @@ func (c *MqttConnection) Subscribe(topic string, qos byte, listener IMqttMessage
 // Unsubscribe from a previously subscribed topic topic
 //
 // Parameters:
-//   - topic a topic name
-//   - qos quality of service (QOS) for the subscription
-//   - listener a message listener
+//	- ctx context.Context	operation context.
+//	- topic a topic name
+//	- qos quality of service (QOS) for the subscription
+//	- listener a message listener
 // Returns: err or nil for success
-func (c *MqttConnection) Unsubscribe(topic string, listener IMqttMessageListener) error {
+func (c *MqttConnection) Unsubscribe(ctx context.Context, topic string, listener IMqttMessageListener) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 

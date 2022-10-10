@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	cref "github.com/pip-services3-gox/pip-services3-commons-gox/refer"
-	build "github.com/pip-services3-gox/pip-services3-mqtt-gox/build"
-	queues "github.com/pip-services3-gox/pip-services3-mqtt-gox/queues"
+	"github.com/pip-services3-gox/pip-services3-mqtt-gox/build"
+	"github.com/pip-services3-gox/pip-services3-mqtt-gox/queues"
 	"github.com/stretchr/testify/assert"
 )
 

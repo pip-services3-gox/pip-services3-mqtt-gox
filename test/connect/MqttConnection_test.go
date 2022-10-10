@@ -1,6 +1,7 @@
 package test_connect
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -39,7 +40,7 @@ func newMqttConnectionTest() *mqttConnectionTest {
 	}
 
 	connection := connect.NewMqttConnection()
-	connection.Configure(cconf.NewConfigParamsFromTuples(
+	connection.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connection.uri", mqttUri,
 		"connection.host", mqttHost,
 		"connection.port", mqttPort,
@@ -53,12 +54,12 @@ func newMqttConnectionTest() *mqttConnectionTest {
 }
 
 func (c *mqttConnectionTest) TestOpenClose(t *testing.T) {
-	err := c.connection.Open("")
+	err := c.connection.Open(context.Background(), "")
 	assert.Nil(t, err)
 	assert.True(t, c.connection.IsOpen())
 	assert.NotNil(t, c.connection.GetConnection())
 
-	err = c.connection.Close("")
+	err = c.connection.Close(context.Background(), "")
 	assert.Nil(t, err)
 	assert.False(t, c.connection.IsOpen())
 	assert.Nil(t, c.connection.GetConnection())

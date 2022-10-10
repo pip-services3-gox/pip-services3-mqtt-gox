@@ -1,6 +1,7 @@
 package queues
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -16,65 +17,63 @@ import (
 	connect "github.com/pip-services3-gox/pip-services3-mqtt-gox/connect"
 )
 
-/*
-MqttMessageQueue are message queue that sends and receives messages via MQTT message broker.
-
- Configuration parameters:
-
-- topic:                         name of MQTT topic to subscribe
-- connection(s):
-  - discovery_key:               (optional) a key to retrieve the connection from  IDiscovery
-  - host:                        host name or IP address
-  - port:                        port number
-  - uri:                         resource URI or connection string with all parameters in it
-- credential(s):
-  - store_key:                   (optional) a key to retrieve the credentials from  ICredentialStore
-  - username:                    user name
-  - password:                    user password
-- options:
-  - serialize_envelope:    (optional) true to serialize entire message as JSON, false to send only message payload (default: true)
-  - autosubscribe:        (optional) true to automatically subscribe on option (default: false)
-  - qos:                  (optional) quality of service level aka QOS (default: 0)
-  - retain:               (optional) retention flag for published messages (default: false)
-  - retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
-  - connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
-  - reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
-  - keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
-
-
- References:
-
-- *:logger:*:*:1.0             (optional)  ILogger components to pass log messages
-- *:counters:*:*:1.0           (optional)  ICounters components to pass collected measurements
-- *:discovery:*:*:1.0          (optional)  IDiscovery services to resolve connections
-- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
-- *:connection:mqtt:*:1.0      (optional) Shared connection to MQTT service
-
-See MessageQueue
-See MessagingCapabilities
-
-Example:
-
-    queue := NewMqttMessageQueue("myqueue")
-    queue.Configure(cconf.NewConfigParamsFromTuples(
-      "subject", "mytopic",
-      "connection.protocol", "mqtt"
-      "connection.host", "localhost"
-      "connection.port", 1883
-    ))
-
-    queue.open("123")
-
-    queue.Send("123", NewMessageEnvelope("", "mymessage", "ABC"))
-
-    message, err := queue.Receive("123")
-	if (message != nil) {
-		...
-		queue.Complete("123", message);
-	}
-*/
+//
+// MqttMessageQueue are message queue that sends and receives messages via MQTT message broker.
+//
+// Configuration parameters:
+//
+//	- topic:                         name of MQTT topic to subscribe
+//	- connection(s):
+//		- discovery_key:               (optional) a key to retrieve the connection from  IDiscovery
+//		- host:                        host name or IP address
+//		- port:                        port number
+//		- uri:                         resource URI or connection string with all parameters in it
+//	- credential(s):
+//		- store_key:                   (optional) a key to retrieve the credentials from  ICredentialStore
+//		- username:                    user name
+//		- password:                    user password
+//	- options:
+//		- serialize_envelope:    (optional) true to serialize entire message as JSON, false to send only message payload (default: true)
+//		- autosubscribe:        (optional) true to automatically subscribe on option (default: false)
+//		- qos:                  (optional) quality of service level aka QOS (default: 0)
+//		- retain:               (optional) retention flag for published messages (default: false)
+//		- retry_connect:        (optional) turns on/off automated reconnect when connection is log (default: true)
+//		- connect_timeout:      (optional) number of milliseconds to wait for connection (default: 30000)
+//		- reconnect_timeout:    (optional) number of milliseconds to wait on each reconnection attempt (default: 1000)
+//		- keepalive_timeout:    (optional) number of milliseconds to ping broker while inactive (default: 3000)
+//
+//
+// References:
+//	- *:logger:*:*:1.0             (optional)  ILogger components to pass log messages
+//	- *:counters:*:*:1.0           (optional)  ICounters components to pass collected measurements
+//	- *:discovery:*:*:1.0          (optional)  IDiscovery services to resolve connections
+//	- *:credential-store:*:*:1.0   (optional) Credential stores to resolve credentials
+//	- *:connection:mqtt:*:1.0      (optional) Shared connection to MQTT service
+//
+// See MessageQueue
+// See MessagingCapabilities
+//
+// Example:
+//
+//	queue := NewMqttMessageQueue("myqueue")
+//	queue.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
+//		"subject", "mytopic",
+//		"connection.protocol", "mqtt"
+//		"connection.host", "localhost"
+//		"connection.port", 1883
+//	))
+//
+//	queue.open(context.Background(), "123")
+//
+//	queue.Send(context.Background(), "123", NewMessageEnvelope("", "mymessage", "ABC"))
+//
+//	message, err := queue.Receive(context.Background(), "123")
+//	if (message != nil) {
+//		...
+//		queue.Complete(context.Background(), "123", message);
+//	}
 type MqttMessageQueue struct {
-	cqueues.MessageQueue
+	*cqueues.MessageQueue
 
 	defaultConfig   *cconf.ConfigParams
 	config          *cconf.ConfigParams
@@ -116,11 +115,11 @@ func NewMqttMessageQueue(name string) *MqttMessageQueue {
 		),
 		Logger: clog.NewCompositeLogger(),
 	}
-	c.MessageQueue = *cqueues.InheritMessageQueue(&c, name,
+	c.MessageQueue = cqueues.InheritMessageQueue(&c, name,
 		cqueues.NewMessagingCapabilities(false, true, true, true, true, false, false, false, true))
 	c.DependencyResolver = cref.NewDependencyResolver()
-	c.DependencyResolver.Put("connection", cref.NewDescriptor("pip-services", "connection", "mqtt", "*", "1.0"))
-	c.DependencyResolver.Configure(c.defaultConfig)
+	c.DependencyResolver.Put(context.Background(), "connection", cref.NewDescriptor("pip-services", "connection", "mqtt", "*", "1.0"))
+	c.DependencyResolver.Configure(context.Background(), c.defaultConfig)
 
 	c.messages = make([]cqueues.MessageEnvelope, 0)
 
@@ -128,12 +127,14 @@ func NewMqttMessageQueue(name string) *MqttMessageQueue {
 }
 
 // Configures component by passing configuration parameters.
-//   - config    configuration parameters to be set.
-func (c *MqttMessageQueue) Configure(config *cconf.ConfigParams) {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- config    configuration parameters to be set.
+func (c *MqttMessageQueue) Configure(ctx context.Context, config *cconf.ConfigParams) {
 	config = config.SetDefaults(c.defaultConfig)
 	c.config = config
 
-	c.DependencyResolver.Configure(config)
+	c.DependencyResolver.Configure(ctx, config)
 
 	c.topic = config.GetAsStringWithDefault("topic", c.topic)
 	c.serializeEnvelope = config.GetAsBooleanWithDefault("options.serialize_envelope", c.serializeEnvelope)
@@ -143,13 +144,15 @@ func (c *MqttMessageQueue) Configure(config *cconf.ConfigParams) {
 }
 
 // Sets references to dependent components.
-//   - references 	references to locate the component dependencies.
-func (c *MqttMessageQueue) SetReferences(references cref.IReferences) {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- references 	references to locate the component dependencies.
+func (c *MqttMessageQueue) SetReferences(ctx context.Context, references cref.IReferences) {
 	c.references = references
-	c.Logger.SetReferences(references)
+	c.Logger.SetReferences(ctx, references)
 
 	// Get connection
-	c.DependencyResolver.SetReferences(references)
+	c.DependencyResolver.SetReferences(ctx, references)
 	result := c.DependencyResolver.GetOneOptional("connection")
 	if dep, ok := result.(*connect.MqttConnection); ok {
 		c.Connection = dep
@@ -171,10 +174,10 @@ func (c *MqttMessageQueue) UnsetReferences() {
 func (c *MqttMessageQueue) createConnection() *connect.MqttConnection {
 	connection := connect.NewMqttConnection()
 	if c.config != nil {
-		connection.Configure(c.config)
+		connection.Configure(context.Background(), c.config)
 	}
 	if c.references != nil {
-		connection.SetReferences(c.references)
+		connection.SetReferences(context.Background(), c.references)
 	}
 	return connection
 }
@@ -186,9 +189,11 @@ func (c *MqttMessageQueue) IsOpen() bool {
 }
 
 // Opens the component.
-//   - correlationId 	(optional) transaction id to trace execution through call chain.
-//   - Returns 			 error or nil no errors occured.
-func (c *MqttMessageQueue) Open(correlationId string) (err error) {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- correlationId 	(optional) transaction id to trace execution through call chain.
+//	- Returns 			 error or nil no errors occured.
+func (c *MqttMessageQueue) Open(ctx context.Context, correlationId string) (err error) {
 	if c.opened {
 		return nil
 	}
@@ -199,7 +204,7 @@ func (c *MqttMessageQueue) Open(correlationId string) (err error) {
 	}
 
 	if c.localConnection {
-		err = c.Connection.Open(correlationId)
+		err = c.Connection.Open(ctx, correlationId)
 	}
 
 	if err == nil && c.Connection == nil {
@@ -216,7 +221,7 @@ func (c *MqttMessageQueue) Open(correlationId string) (err error) {
 
 	// Automatically subscribe if needed
 	if c.autoSubscribe {
-		err = c.subscribe(correlationId)
+		err = c.subscribe(ctx, correlationId)
 		if err != nil {
 			return err
 		}
@@ -228,9 +233,11 @@ func (c *MqttMessageQueue) Open(correlationId string) (err error) {
 }
 
 // Closes component and frees used resources.
-//   - correlationId 	(optional) transaction id to trace execution through call chain.
-//   - Returns 			error or nil no errors occured.
-func (c *MqttMessageQueue) Close(correlationId string) (err error) {
+// Parameters:
+//	- ctx context.Context	operation context.
+//	- correlationId 	(optional) transaction id to trace execution through call chain.
+//	- Returns 			error or nil no errors occured.
+func (c *MqttMessageQueue) Close(ctx context.Context, correlationId string) (err error) {
 	if !c.opened {
 		return nil
 	}
@@ -240,7 +247,7 @@ func (c *MqttMessageQueue) Close(correlationId string) (err error) {
 	}
 
 	if c.localConnection {
-		err = c.Connection.Close(correlationId)
+		err = c.Connection.Close(ctx, correlationId)
 	}
 	if err != nil {
 		return err
@@ -249,7 +256,7 @@ func (c *MqttMessageQueue) Close(correlationId string) (err error) {
 	// Unsubscribe from topic
 	if c.subscribed {
 		topic := c.getTopic()
-		c.Connection.Unsubscribe(topic, c)
+		c.Connection.Unsubscribe(ctx, topic, c)
 		c.subscribed = false
 	}
 
@@ -269,7 +276,7 @@ func (c *MqttMessageQueue) getTopic() string {
 	return c.Name()
 }
 
-func (c *MqttMessageQueue) subscribe(correlationId string) error {
+func (c *MqttMessageQueue) subscribe(ctx context.Context, correlationId string) error {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
@@ -280,9 +287,9 @@ func (c *MqttMessageQueue) subscribe(correlationId string) error {
 
 	// Subscribe to the topic
 	topic := c.getTopic()
-	err := c.Connection.Subscribe(topic, c.qos, c)
+	err := c.Connection.Subscribe(ctx, topic, c.qos, c)
 	if err != nil {
-		c.Logger.Error(correlationId, err, "Failed to subscribe to topic "+topic)
+		c.Logger.Error(ctx, correlationId, err, "Failed to subscribe to topic "+topic)
 		return err
 	}
 
@@ -336,30 +343,30 @@ func (c *MqttMessageQueue) OnMessage(msg mqtt.Message) {
 	// Deserialize message
 	message, err := c.toMessage(msg)
 	if message == nil || err != nil {
-		c.Logger.Error("", err, "Failed to read received message")
+		c.Logger.Error(context.Background(), "", err, "Failed to read received message")
 		return
 	}
 
-	c.Counters.IncrementOne("queue." + c.Name() + ".received_messages")
-	c.Logger.Debug(message.CorrelationId, "Received message %s via %s", message, c.Name())
+	c.Counters.IncrementOne(context.Background(), "queue."+c.Name()+".received_messages")
+	c.Logger.Debug(context.Background(), message.CorrelationId, "Received message %s via %s", message, c.Name())
 
 	// Send message to receiver if its set or put it into the queue
 	c.Lock.Lock()
+	defer c.Lock.Unlock()
 	if c.receiver != nil {
 		receiver := c.receiver
-		c.Lock.Unlock()
-		c.sendMessageToReceiver(receiver, message)
+		c.sendMessageToReceiver(context.Background(), receiver, message)
 	} else {
 		c.messages = append(c.messages, *message)
-		c.Lock.Unlock()
 	}
 }
 
 // Clear method are clears component state.
 // Parameters:
-//   - correlationId 	string (optional) transaction id to trace execution through call chain.
+//	- ctx context.Context	operation context.
+//	- correlationId 	string (optional) transaction id to trace execution through call chain.
 // Returns error or nil no errors occured.
-func (c *MqttMessageQueue) Clear(correlationId string) error {
+func (c *MqttMessageQueue) Clear(ctx context.Context, correlationId string) error {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
@@ -381,17 +388,18 @@ func (c *MqttMessageQueue) ReadMessageCount() (int64, error) {
 // Peek method are peeks a single incoming message from the queue without removing it.
 // If there are no messages available in the queue it returns nil.
 // Parameters:
-//   - correlationId  string  (optional) transaction id to trace execution through call chain.
+//	- ctx context.Context	operation context.
+//	- correlationId  string  (optional) transaction id to trace execution through call chain.
 // Returns: result *cqueues.MessageEnvelope, err error
 // message or error.
-func (c *MqttMessageQueue) Peek(correlationId string) (*cqueues.MessageEnvelope, error) {
+func (c *MqttMessageQueue) Peek(ctx context.Context, correlationId string) (*cqueues.MessageEnvelope, error) {
 	err := c.CheckOpen(correlationId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Subscribe if needed
-	err = c.subscribe(correlationId)
+	err = c.subscribe(ctx, correlationId)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +414,7 @@ func (c *MqttMessageQueue) Peek(correlationId string) (*cqueues.MessageEnvelope,
 	c.Lock.Unlock()
 
 	if message != nil {
-		c.Logger.Trace(message.CorrelationId, "Peeked message %s on %s", message, c.String())
+		c.Logger.Trace(ctx, message.CorrelationId, "Peeked message %s on %s", message, c.String())
 	}
 
 	return message, nil
@@ -416,17 +424,18 @@ func (c *MqttMessageQueue) Peek(correlationId string) (*cqueues.MessageEnvelope,
 // If there are no messages available in the queue it returns an empty list.
 // Important: This method is not supported by MQTT.
 // Parameters:
-//   - correlationId     (optional) transaction id to trace execution through call chain.
-//   - messageCount      a maximum number of messages to peek.
+//	- ctx context.Context	operation context.
+//	- correlationId     (optional) transaction id to trace execution through call chain.
+//	- messageCount      a maximum number of messages to peek.
 // Returns:          callback function that receives a list with messages or error.
-func (c *MqttMessageQueue) PeekBatch(correlationId string, messageCount int64) ([]*cqueues.MessageEnvelope, error) {
+func (c *MqttMessageQueue) PeekBatch(ctx context.Context, correlationId string, messageCount int64) ([]*cqueues.MessageEnvelope, error) {
 	err := c.CheckOpen(correlationId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Subscribe if needed
-	err = c.subscribe(correlationId)
+	err = c.subscribe(ctx, correlationId)
 	if err != nil {
 		return nil, err
 	}
@@ -443,25 +452,26 @@ func (c *MqttMessageQueue) PeekBatch(correlationId string, messageCount int64) (
 		messages = append(messages, &message)
 	}
 
-	c.Logger.Trace(correlationId, "Peeked %d messages on %s", len(messages), c.Name())
+	c.Logger.Trace(ctx, correlationId, "Peeked %d messages on %s", len(messages), c.Name())
 
 	return messages, nil
 }
 
 // Receive method are receives an incoming message and removes it from the queue.
 // Parameters:
+//	- ctx context.Context	operation context.
 //  - correlationId   string   (optional) transaction id to trace execution through call chain.
 //  - waitTimeout  time.Duration     a timeout in milliseconds to wait for a message to come.
 // Returns:  result *cqueues.MessageEnvelope, err error
 // receives a message or error.
-func (c *MqttMessageQueue) Receive(correlationId string, waitTimeout time.Duration) (*cqueues.MessageEnvelope, error) {
+func (c *MqttMessageQueue) Receive(ctx context.Context, correlationId string, waitTimeout time.Duration) (*cqueues.MessageEnvelope, error) {
 	err := c.CheckOpen(correlationId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Subscribe if needed
-	err = c.subscribe(correlationId)
+	err = c.subscribe(ctx, correlationId)
 	if err != nil {
 		return nil, err
 	}
@@ -493,17 +503,18 @@ func (c *MqttMessageQueue) Receive(correlationId string, waitTimeout time.Durati
 
 // Send method are sends a message into the queue.
 // Parameters:
-//   - correlationId string    (optional) transaction id to trace execution through call chain.
-//   - envelope *cqueues.MessageEnvelope  a message envelop to be sent.
+//	- ctx context.Context	operation context.
+//	- correlationId string    (optional) transaction id to trace execution through call chain.
+//	- envelope *cqueues.MessageEnvelope  a message envelop to be sent.
 // Returns: error or nil for success.
-func (c *MqttMessageQueue) Send(correlationId string, envelop *cqueues.MessageEnvelope) error {
+func (c *MqttMessageQueue) Send(ctx context.Context, correlationId string, envelop *cqueues.MessageEnvelope) error {
 	err := c.CheckOpen(correlationId)
 	if err != nil {
 		return err
 	}
 
-	c.Counters.IncrementOne("queue." + c.Name() + ".sent_messages")
-	c.Logger.Debug(envelop.CorrelationId, "Sent message %s via %s", envelop.String(), c.Name())
+	c.Counters.IncrementOne(ctx, "queue."+c.Name()+".sent_messages")
+	c.Logger.Debug(ctx, envelop.CorrelationId, "Sent message %s via %s", envelop.String(), c.Name())
 
 	msg, err := c.fromMessage(envelop)
 	if err != nil {
@@ -515,9 +526,9 @@ func (c *MqttMessageQueue) Send(correlationId string, envelop *cqueues.MessageEn
 		topic = c.Name()
 	}
 
-	err = c.Connection.Publish(topic, c.qos, c.retain, msg)
+	err = c.Connection.Publish(ctx, topic, c.qos, c.retain, msg)
 	if err != nil {
-		c.Logger.Error(envelop.CorrelationId, err, "Failed to send message via %s", c.Name())
+		c.Logger.Error(ctx, envelop.CorrelationId, err, "Failed to send message via %s", c.Name())
 		return err
 	}
 
@@ -528,11 +539,12 @@ func (c *MqttMessageQueue) Send(correlationId string, envelop *cqueues.MessageEn
 // This method is usually used to extend the message processing time.
 // Important: This method is not supported by MQTT.
 // Parameters:
-//   - message   *cqueues.MessageEnvelope    a message to extend its lock.
-//   - lockTimeout  time.Duration  a locking timeout in milliseconds.
+//	- ctx context.Context	operation context.
+//	- message   *cqueues.MessageEnvelope    a message to extend its lock.
+//	- lockTimeout  time.Duration  a locking timeout in milliseconds.
 // Returns: error
 // receives an error or nil for success.
-func (c *MqttMessageQueue) RenewLock(message *cqueues.MessageEnvelope, lockTimeout time.Duration) (err error) {
+func (c *MqttMessageQueue) RenewLock(ctx context.Context, message *cqueues.MessageEnvelope, lockTimeout time.Duration) (err error) {
 	// Not supported
 	return nil
 }
@@ -541,10 +553,11 @@ func (c *MqttMessageQueue) RenewLock(message *cqueues.MessageEnvelope, lockTimeo
 // This method is usually used to remove the message after successful processing.
 // Important: This method is not supported by MQTT.
 // Parameters:
-//   - message  *cqueues.MessageEnvelope a message to remove.
+//	- ctx context.Context	operation context.
+//	- message  *cqueues.MessageEnvelope a message to remove.
 // Returns: error
 // error or nil for success.
-func (c *MqttMessageQueue) Complete(message *cqueues.MessageEnvelope) error {
+func (c *MqttMessageQueue) Complete(ctx context.Context, message *cqueues.MessageEnvelope) error {
 	// Not supported
 	return nil
 }
@@ -555,10 +568,11 @@ func (c *MqttMessageQueue) Complete(message *cqueues.MessageEnvelope) error {
 // or/and send to dead letter queue.
 // Important: This method is not supported by MQTT.
 // Parameters:
-//   - message *cqueues.MessageEnvelope  a message to return.
+//	- ctx context.Context	operation context.
+//	- message *cqueues.MessageEnvelope  a message to return.
 // Returns: error
 //  error or nil for success.
-func (c *MqttMessageQueue) Abandon(message *cqueues.MessageEnvelope) error {
+func (c *MqttMessageQueue) Abandon(ctx context.Context, message *cqueues.MessageEnvelope) error {
 	// Not supported
 	return nil
 }
@@ -566,50 +580,52 @@ func (c *MqttMessageQueue) Abandon(message *cqueues.MessageEnvelope) error {
 // Permanently removes a message from the queue and sends it to dead letter queue.
 // Important: This method is not supported by MQTT.
 // Parameters:
-//   - message  *cqueues.MessageEnvelope a message to be removed.
+//	- ctx context.Context	operation context.
+//	- message  *cqueues.MessageEnvelope a message to be removed.
 // Returns: error
 //  error or nil for success.
-func (c *MqttMessageQueue) MoveToDeadLetter(message *cqueues.MessageEnvelope) error {
+func (c *MqttMessageQueue) MoveToDeadLetter(ctx context.Context, message *cqueues.MessageEnvelope) error {
 	// Not supported
 	return nil
 }
 
-func (c *MqttMessageQueue) sendMessageToReceiver(receiver cqueues.IMessageReceiver, message *cqueues.MessageEnvelope) {
+func (c *MqttMessageQueue) sendMessageToReceiver(ctx context.Context, receiver cqueues.IMessageReceiver, message *cqueues.MessageEnvelope) {
 	correlationId := message.CorrelationId
 
 	defer func() {
 		if r := recover(); r != nil {
 			err := fmt.Sprintf("%v", r)
-			c.Logger.Error(correlationId, nil, "Failed to process the message - "+err)
+			c.Logger.Error(ctx, correlationId, nil, "Failed to process the message - "+err)
 		}
 	}()
 
-	err := receiver.ReceiveMessage(message, c)
+	err := receiver.ReceiveMessage(ctx, message, c)
 	if err != nil {
-		c.Logger.Error(correlationId, err, "Failed to process the message")
+		c.Logger.Error(ctx, correlationId, err, "Failed to process the message")
 	}
 }
 
 // Listens for incoming messages and blocks the current thread until queue is closed.
 // Parameters:
+//	- ctx context.Context	operation context.
 //  - correlationId   string  (optional) transaction id to trace execution through call chain.
 //  - receiver    cqueues.IMessageReceiver      a receiver to receive incoming messages.
 //
 // See IMessageReceiver
 // See receive
-func (c *MqttMessageQueue) Listen(correlationId string, receiver cqueues.IMessageReceiver) error {
+func (c *MqttMessageQueue) Listen(ctx context.Context, correlationId string, receiver cqueues.IMessageReceiver) error {
 	err := c.CheckOpen(correlationId)
 	if err != nil {
 		return err
 	}
 
 	// Subscribe if needed
-	err = c.subscribe(correlationId)
+	err = c.subscribe(ctx, correlationId)
 	if err != nil {
 		return err
 	}
 
-	c.Logger.Trace("", "Started listening messages at %s", c.Name())
+	c.Logger.Trace(ctx, "", "Started listening messages at %s", c.Name())
 
 	// Get all collected messages
 	c.Lock.Lock()
@@ -619,7 +635,7 @@ func (c *MqttMessageQueue) Listen(correlationId string, receiver cqueues.IMessag
 
 	// Resend collected messages to receiver
 	for _, message := range batchMessages {
-		receiver.ReceiveMessage(&message, c)
+		receiver.ReceiveMessage(ctx, &message, c)
 	}
 
 	// Set the receiver
@@ -633,8 +649,9 @@ func (c *MqttMessageQueue) Listen(correlationId string, receiver cqueues.IMessag
 // EndListen method are ends listening for incoming messages.
 // When this method is call listen unblocks the thread and execution continues.
 // Parameters:
-//   - correlationId  string   (optional) transaction id to trace execution through call chain.
-func (c *MqttMessageQueue) EndListen(correlationId string) {
+//	- ctx context.Context	operation context.
+//	- correlationId  string   (optional) transaction id to trace execution through call chain.
+func (c *MqttMessageQueue) EndListen(ctx context.Context, correlationId string) {
 	c.Lock.Lock()
 	c.receiver = nil
 	c.Lock.Unlock()

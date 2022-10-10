@@ -1,6 +1,7 @@
 package test_queues
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -44,7 +45,7 @@ func newMqttMessageQueueTest() *mqttMessageQueueTest {
 	}
 
 	queue := queues.NewMqttMessageQueue(mqttTopic)
-	queue.Configure(cconf.NewConfigParamsFromTuples(
+	queue.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connection.uri", mqttUri,
 		"connection.host", mqttHost,
 		"connection.port", mqttPort,
@@ -63,7 +64,7 @@ func newMqttMessageQueueTest() *mqttMessageQueueTest {
 }
 
 func (c *mqttMessageQueueTest) setup(t *testing.T) {
-	err := c.queue.Open("")
+	err := c.queue.Open(context.Background(), "")
 	if err != nil {
 		t.Error("Failed to open queue", err)
 		return
@@ -77,7 +78,7 @@ func (c *mqttMessageQueueTest) setup(t *testing.T) {
 }
 
 func (c *mqttMessageQueueTest) teardown(t *testing.T) {
-	err := c.queue.Close("")
+	err := c.queue.Close(context.Background(), "")
 	if err != nil {
 		t.Error("Failed to close queue", err)
 	}
@@ -89,17 +90,17 @@ func TestMqttMessageQueue(t *testing.T) {
 		return
 	}
 
-	// c.setup(t)
-	// t.Run("Send Receive Message", c.fixture.TestSendReceiveMessage)
-	// c.teardown(t)
+	c.setup(t)
+	t.Run("Send Receive Message", c.fixture.TestSendReceiveMessage)
+	c.teardown(t)
 
 	c.setup(t)
 	t.Run("Receive Send Message", c.fixture.TestReceiveSendMessage)
 	c.teardown(t)
 
-	// c.setup(t)
-	// t.Run("Send Peek Message", c.fixture.TestSendPeekMessage)
-	// c.teardown(t)
+	c.setup(t)
+	t.Run("Send Peek Message", c.fixture.TestSendPeekMessage)
+	c.teardown(t)
 
 	c.setup(t)
 	t.Run("Peek No Message", c.fixture.TestPeekNoMessage)

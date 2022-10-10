@@ -1,6 +1,7 @@
 package test_connect
 
 import (
+	"context"
 	"testing"
 
 	cconf "github.com/pip-services3-gox/pip-services3-commons-gox/config"
@@ -19,7 +20,7 @@ func NewMqttConnectionResolverTest() *mqttConnectionResolverTest {
 
 func (c *mqttConnectionResolverTest) TestSingleConnection(t *testing.T) {
 	resolver := connect.NewMqttConnectionResolver()
-	resolver.Configure(cconf.NewConfigParamsFromTuples(
+	resolver.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connection.protocol", "tcp",
 		"connection.host", "localhost",
 		"connection.port", 1883,
@@ -34,7 +35,7 @@ func (c *mqttConnectionResolverTest) TestSingleConnection(t *testing.T) {
 
 func (c *mqttConnectionResolverTest) TestSingleConnectionWithAuth(t *testing.T) {
 	resolver := connect.NewMqttConnectionResolver()
-	resolver.Configure(cconf.NewConfigParamsFromTuples(
+	resolver.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connection.protocol", "tcp",
 		"connection.host", "localhost",
 		"connection.port", 1883,
@@ -51,7 +52,7 @@ func (c *mqttConnectionResolverTest) TestSingleConnectionWithAuth(t *testing.T) 
 
 func (c *mqttConnectionResolverTest) TestClusterConnection(t *testing.T) {
 	resolver := connect.NewMqttConnectionResolver()
-	resolver.Configure(cconf.NewConfigParamsFromTuples(
+	resolver.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connections.0.protocol", "tcp",
 		"connections.0.host", "server1",
 		"connections.0.port", 1883,
@@ -73,7 +74,7 @@ func (c *mqttConnectionResolverTest) TestClusterConnection(t *testing.T) {
 
 func (c *mqttConnectionResolverTest) TestClusterConnectionWithAuth(t *testing.T) {
 	resolver := connect.NewMqttConnectionResolver()
-	resolver.Configure(cconf.NewConfigParamsFromTuples(
+	resolver.Configure(context.Background(), cconf.NewConfigParamsFromTuples(
 		"connections.0.protocol", "tcp",
 		"connections.0.host", "server1",
 		"connections.0.port", 1883,
